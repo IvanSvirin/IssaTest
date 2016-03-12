@@ -6,14 +6,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.ImageButton;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -70,8 +73,47 @@ public class MainActivity extends AppCompatActivity {
         ItemClickSupport.addTo(recyclerViewTitles).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                // do it
-                Toast.makeText(MainActivity.this, "position # " + position, Toast.LENGTH_SHORT).show();
+                LayoutInflater inflater = MainActivity.this.getLayoutInflater();
+                View playerView = inflater.inflate(R.layout.player_view, null);
+
+                ImageButton playButton = (ImageButton) playerView.findViewById(R.id.playButton);
+                ImageButton pauseButton = (ImageButton) playerView.findViewById(R.id.pauseButton);
+                ImageButton cancelButton = (ImageButton) playerView.findViewById(R.id.cancelButton);
+
+                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this)
+                        .setView(playerView);
+                final AlertDialog playerDialog = builder.create();
+                playerDialog.show();
+
+                final MediaPlayer mp = new MediaPlayer();
+                try {
+                    mp.setDataSource(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC) + "/" +
+                            mp3Files.get(position));
+                    mp.prepare();
+                    mp.start();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                playButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mp.start();
+                    }
+                });
+                pauseButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mp.pause();
+                    }
+                });
+                cancelButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mp.stop();
+                        playerDialog.cancel();
+                    }
+                });
             }
         });
     }
@@ -85,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
     private void downloadMp3Files() {
         downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mp3Files.get(count)));
-        request.setMimeType("audio/MP3"); //?????????????????????
+        request.setMimeType("audio/mp3"); //?????????????????????
         request.allowScanningByMediaScanner();
         subPath = "file" + count + ".mp3";
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC, subPath);
