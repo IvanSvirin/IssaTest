@@ -12,16 +12,25 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 import wseemann.media.FFmpegMediaMetadataRetriever;
 
 public class MainActivity extends AppCompatActivity {
+    private RecyclerView recyclerViewTitles;
+    private MainListAdapter adapter;
+    private LinearLayoutManager layoutManager;
     private static final String MP3_SAVED = "mp3_saved";
     private static final String MP3_SAVED_KEY = "mp3_saved_key";
     private ArrayList<String> mp3Files = new ArrayList<>();
@@ -42,10 +51,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             getLinks();
         }
-    }
-
-    private ArrayList<String> readFile() {
-        return null;
+        initView();
     }
 
     @Override
@@ -54,12 +60,20 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
 
-    void updateView() {
-        RecyclerView recyclerViewTitles = (RecyclerView) findViewById(R.id.recycler_view);
-        MainListAdapter adapter = new MainListAdapter(mp3Files);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+    void initView() {
+        recyclerViewTitles = (RecyclerView) findViewById(R.id.recycler_view);
+        adapter = new MainListAdapter(mp3Files);
+        layoutManager = new LinearLayoutManager(this);
         recyclerViewTitles.setAdapter(adapter);
         recyclerViewTitles.setLayoutManager(layoutManager);
+
+        ItemClickSupport.addTo(recyclerViewTitles).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
+            @Override
+            public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                // do it
+                Toast.makeText(MainActivity.this, "position # " + position, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void getLinks() {
@@ -104,7 +118,8 @@ public class MainActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putBoolean(MP3_SAVED_KEY, true);
                     editor.apply();
-                    updateView();
+                    adapter.notifyDataSetChanged();
+//                    initView();
                     downloadMp3Files();
                 } else {
                     FFmpegMediaMetadataRetriever retriever = new FFmpegMediaMetadataRetriever();
@@ -118,12 +133,42 @@ public class MainActivity extends AppCompatActivity {
                     fileOld.renameTo(fileNew);
                     mp3Files.remove(count);
                     mp3Files.add(count, title);
-                    updateView();
+//                    initView();
+                    adapter.notifyDataSetChanged();
                     count++;
-                    if (count < mp3Files.size()) downloadMp3Files();
+                    if (count < mp3Files.size()) {
+                        downloadMp3Files();
+                    } else {
+                        writeFile(mp3Files);
+                    }
                 }
             }
         }
     };
+
+    @SuppressWarnings("unchecked")
+    private ArrayList<String> readFile() {
+        try {
+            FileInputStream fileInputStream = openFileInput("list.txt");
+            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+            ArrayList<String> list = (ArrayList<String>) objectInputStream.readObject();
+            objectInputStream.close();
+            return list;
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void writeFile(ArrayList<String> list) {
+        try {
+            FileOutputStream fileOutputStream = openFileOutput("list.txt", MODE_PRIVATE);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(list);
+            objectOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
 
