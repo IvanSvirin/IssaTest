@@ -21,6 +21,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/imageView"
         android:src="@android:drawable/divider_horizontal_dark"
-        android:background="#000000" />
+        android:background="#000000"
+        android:contentDescription="@android:drawable/divider_horizontal_dark" />
 
 </LinearLayout>

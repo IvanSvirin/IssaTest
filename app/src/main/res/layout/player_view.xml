@@ -12,7 +12,8 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
-        android:src="@android:drawable/ic_media_play" />
+        android:src="@android:drawable/ic_media_play"
+        android:contentDescription="@android:drawable/ic_media_play" />
 
     <ImageButton
         android:layout_width="wrap_content"
@@ -23,7 +24,8 @@
         android:layout_toEndOf="@+id/playButton"
         android:layout_marginLeft="32dp"
         android:layout_marginStart="32dp"
-        android:src="@android:drawable/ic_media_pause" />
+        android:src="@android:drawable/ic_media_pause"
+        android:contentDescription="@android:drawable/ic_media_pause" />
 
     <ImageButton
         android:layout_width="wrap_content"
@@ -34,5 +36,6 @@
         android:layout_toStartOf="@+id/playButton"
         android:layout_marginRight="32dp"
         android:layout_marginEnd="32dp"
-        android:src="@android:drawable/ic_menu_close_clear_cancel" />
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        android:contentDescription="@android:drawable/ic_menu_close_clear_cancel" />
 </RelativeLayout>

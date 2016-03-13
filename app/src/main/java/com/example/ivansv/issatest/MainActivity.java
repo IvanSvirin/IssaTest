@@ -31,14 +31,11 @@ import java.util.ArrayList;
 import wseemann.media.FFmpegMediaMetadataRetriever;
 
 public class MainActivity extends AppCompatActivity {
-    private RecyclerView recyclerViewTitles;
     private MainListAdapter adapter;
-    private LinearLayoutManager layoutManager;
     private static final String MP3_SAVED = "mp3_saved";
     private static final String MP3_SAVED_KEY = "mp3_saved_key";
     private ArrayList<String> mp3Files = new ArrayList<>();
     public static final String mp3LinksUri = "https://drive.google.com/uc?authuser=0&id=0B-ZLtSvb7CyySEFYYXQ3bVp5VU0&export=download";
-    private static long downloadId;
     private static DownloadManager downloadManager;
     private SharedPreferences sharedPreferences;
     private int count = 0;
@@ -64,9 +61,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void initView() {
-        recyclerViewTitles = (RecyclerView) findViewById(R.id.recycler_view);
+        RecyclerView recyclerViewTitles = (RecyclerView) findViewById(R.id.recycler_view);
         adapter = new MainListAdapter(mp3Files);
-        layoutManager = new LinearLayoutManager(this);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerViewTitles.setAdapter(adapter);
         recyclerViewTitles.setLayoutManager(layoutManager);
 
@@ -127,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
     private void downloadMp3Files() {
         downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mp3Files.get(count)));
-        request.setMimeType("audio/mp3"); //?????????????????????
+        request.setMimeType("audio/mp3");
         request.allowScanningByMediaScanner();
         subPath = "file" + count + ".mp3";
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC, subPath);
@@ -146,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
             String action = intent.getAction();
             if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
                 if (!(sharedPreferences.contains(MP3_SAVED_KEY))) {
-                    downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
+                    long downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
                     try {
                         BufferedReader bufferedReader = new BufferedReader(
                                 new FileReader(downloadManager.openDownloadedFile(downloadId).getFileDescriptor()));
@@ -161,7 +158,6 @@ public class MainActivity extends AppCompatActivity {
                     editor.putBoolean(MP3_SAVED_KEY, true);
                     editor.apply();
                     adapter.notifyDataSetChanged();
-//                    initView();
                     downloadMp3Files();
                 } else {
                     FFmpegMediaMetadataRetriever retriever = new FFmpegMediaMetadataRetriever();
@@ -175,7 +171,6 @@ public class MainActivity extends AppCompatActivity {
                     fileOld.renameTo(fileNew);
                     mp3Files.remove(count);
                     mp3Files.add(count, title);
-//                    initView();
                     adapter.notifyDataSetChanged();
                     count++;
                     if (count < mp3Files.size()) {
