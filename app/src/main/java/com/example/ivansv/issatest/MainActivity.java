@@ -45,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // check that mp3 files have been saved
         sharedPreferences = getSharedPreferences(MP3_SAVED, MODE_PRIVATE);
         if (sharedPreferences.contains(MP3_SAVED_KEY)) {
             mp3Files = readFile();
@@ -67,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerViewTitles.setAdapter(adapter);
         recyclerViewTitles.setLayoutManager(layoutManager);
 
+        // onItemClickListener and mp3 player management implementation
         ItemClickSupport.addTo(recyclerViewTitles).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
@@ -115,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // downloading list of links on mp3 files
     private void getLinks() {
         downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mp3LinksUri));
@@ -142,6 +146,8 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
+
+                //choice handling of downloaded links list ("true") or current downloaded mp3 file ("false")
                 if (!(sharedPreferences.contains(MP3_SAVED_KEY))) {
                     long downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
                     try {

@@ -4,24 +4,24 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 public class ItemClickSupport {
-    private final RecyclerView mRecyclerView;
-    private OnItemClickListener mOnItemClickListener;
+    private final RecyclerView recyclerView;
+    private OnItemClickListener onItemClickListener;
 
-    private View.OnClickListener mOnClickListener = new View.OnClickListener() {
+    private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (mOnItemClickListener != null) {
-                RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder(v);
-                mOnItemClickListener.onItemClicked(mRecyclerView, holder.getAdapterPosition(), v);
+            if (onItemClickListener != null) {
+                RecyclerView.ViewHolder holder = recyclerView.getChildViewHolder(v);
+                onItemClickListener.onItemClicked(recyclerView, holder.getAdapterPosition(), v);
             }
         }
     };
 
-    private RecyclerView.OnChildAttachStateChangeListener mAttachListener = new RecyclerView.OnChildAttachStateChangeListener() {
+    private RecyclerView.OnChildAttachStateChangeListener attachListener = new RecyclerView.OnChildAttachStateChangeListener() {
         @Override
         public void onChildViewAttachedToWindow(View view) {
-            if (mOnItemClickListener != null) {
-                view.setOnClickListener(mOnClickListener);
+            if (onItemClickListener != null) {
+                view.setOnClickListener(onClickListener);
             }
         }
 
@@ -31,9 +31,9 @@ public class ItemClickSupport {
     };
 
     private ItemClickSupport(RecyclerView recyclerView) {
-        mRecyclerView = recyclerView;
-        mRecyclerView.setTag(R.id.item_click_support, this);
-        mRecyclerView.addOnChildAttachStateChangeListener(mAttachListener);
+        this.recyclerView = recyclerView;
+        this.recyclerView.setTag(R.id.item_click_support, this);
+        this.recyclerView.addOnChildAttachStateChangeListener(attachListener);
     }
 
     public static ItemClickSupport addTo(RecyclerView view) {
@@ -45,7 +45,7 @@ public class ItemClickSupport {
     }
 
     public ItemClickSupport setOnItemClickListener(OnItemClickListener listener) {
-        mOnItemClickListener = listener;
+        onItemClickListener = listener;
         return this;
     }
 
