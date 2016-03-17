@@ -166,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
                         while ((current = bufferedReader.readLine()) != null) {
                             mp3Files.add(current);
                         }
+                        bufferedReader.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -206,6 +207,7 @@ public class MainActivity extends AppCompatActivity {
             ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
             ArrayList<String> list = (ArrayList<String>) objectInputStream.readObject();
             objectInputStream.close();
+            fileInputStream.close();
             return list;
         } catch (ClassNotFoundException | IOException e) {
             e.printStackTrace();
@@ -219,6 +221,7 @@ public class MainActivity extends AppCompatActivity {
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
             objectOutputStream.writeObject(list);
             objectOutputStream.close();
+            fileOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

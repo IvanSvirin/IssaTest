@@ -33,7 +33,7 @@ public class MainListAdapter extends RecyclerView.Adapter<MainListAdapter.MainVi
         return titles.size();
     }
 
-    public class MainViewHolder extends RecyclerView.ViewHolder {
+    static class MainViewHolder extends RecyclerView.ViewHolder {
         TextView textViewTitle;
         String title;
 
