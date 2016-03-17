@@ -34,12 +34,14 @@ public class MainActivity extends AppCompatActivity {
     private MainListAdapter adapter;
     private static final String MP3_SAVED = "mp3_saved";
     private static final String MP3_SAVED_KEY = "mp3_saved_key";
+    private boolean listSaved = false;
     private ArrayList<String> mp3Files = new ArrayList<>();
     public static final String mp3LinksUri = "https://drive.google.com/uc?authuser=0&id=0B-ZLtSvb7CyySEFYYXQ3bVp5VU0&export=download";
     private static DownloadManager downloadManager;
     private SharedPreferences sharedPreferences;
     private int count = 0;
     private String subPath;
+    private boolean isPaused = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,12 +101,19 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         mp.start();
+                        isPaused = false;
                     }
                 });
                 pauseButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mp.pause();
+                        if (isPaused) {
+                            mp.start();
+                            isPaused = false;
+                        } else{
+                            mp.pause();
+                            isPaused = true;
+                        }
                     }
                 });
                 cancelButton.setOnClickListener(new View.OnClickListener() {
@@ -148,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
             if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
 
                 //choice handling of downloaded links list ("true") or current downloaded mp3 file ("false")
-                if (!(sharedPreferences.contains(MP3_SAVED_KEY))) {
+                if (!listSaved) {
                     long downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
                     try {
                         BufferedReader bufferedReader = new BufferedReader(
@@ -160,9 +169,7 @@ public class MainActivity extends AppCompatActivity {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putBoolean(MP3_SAVED_KEY, true);
-                    editor.apply();
+                    listSaved = true;
                     adapter.notifyDataSetChanged();
                     downloadMp3Files();
                 } else {
@@ -183,6 +190,9 @@ public class MainActivity extends AppCompatActivity {
                         downloadMp3Files();
                     } else {
                         writeFile(mp3Files);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putBoolean(MP3_SAVED_KEY, true);
+                        editor.apply();
                     }
                 }
             }
