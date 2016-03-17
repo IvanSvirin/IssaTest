@@ -6,17 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ImageButton;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private int count = 0;
     private String subPath;
-    private boolean isPaused = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,65 +60,10 @@ public class MainActivity extends AppCompatActivity {
 
     void initView() {
         RecyclerView recyclerViewTitles = (RecyclerView) findViewById(R.id.recycler_view);
-        adapter = new MainListAdapter(mp3Files);
+        adapter = new MainListAdapter(mp3Files, this);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerViewTitles.setAdapter(adapter);
         recyclerViewTitles.setLayoutManager(layoutManager);
-
-        // onItemClickListener and mp3 player management implementation
-        ItemClickSupport.addTo(recyclerViewTitles).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
-            @Override
-            public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                LayoutInflater inflater = MainActivity.this.getLayoutInflater();
-                View playerView = inflater.inflate(R.layout.player_view, null);
-
-                ImageButton playButton = (ImageButton) playerView.findViewById(R.id.playButton);
-                ImageButton pauseButton = (ImageButton) playerView.findViewById(R.id.pauseButton);
-                ImageButton cancelButton = (ImageButton) playerView.findViewById(R.id.cancelButton);
-
-                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this)
-                        .setView(playerView);
-                final AlertDialog playerDialog = builder.create();
-                playerDialog.show();
-
-                final MediaPlayer mp = new MediaPlayer();
-                try {
-                    mp.setDataSource(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC) + "/" +
-                            mp3Files.get(position));
-                    mp.prepare();
-                    mp.start();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                playButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mp.start();
-                        isPaused = false;
-                    }
-                });
-                pauseButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (isPaused) {
-                            mp.start();
-                            isPaused = false;
-                        } else{
-                            mp.pause();
-                            isPaused = true;
-                        }
-                    }
-                });
-                cancelButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mp.stop();
-                        playerDialog.cancel();
-                    }
-                });
-            }
-        });
     }
 
     // downloading list of links on mp3 files
